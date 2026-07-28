@@ -1,0 +1,18 @@
+# Default owner
+*                                        @danielcirstoiu
+
+# Pipeline and governance
+/.github/                                @danielcirstoiu
+/.governance/                            @danielcirstoiu
+
+# Integration points: single owner, deliberately
+/projects/**/project.json                @danielcirstoiu
+/projects/**/Main.xaml                   @danielcirstoiu
+/projects/**/Framework/                  @danielcirstoiu
+/projects/**/.objects/                   @danielcirstoiu
+
+# Feature areas
+/projects/InvoiceProcessing.Performer/Workflows/ERP/           @danielcirstoiu
+/projects/InvoiceProcessing.Performer/Workflows/Notification/  @second-account
+/projects/InvoiceProcessing.Performer/Tests/ERP/               @danielcirstoiu
+/projects/InvoiceProcessing.Performer/Tests/Notification/      @second-account

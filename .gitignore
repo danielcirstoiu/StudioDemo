@@ -1,0 +1,18 @@
+# --- UiPath ---
+.local/
+.settings/
+.tmh/
+.project/
+*.log
+
+# --- Build output ---
+dist/
+*.nupkg
+analyzer-results.json
+
+# --- OS / editor ---
+Thumbs.db
+desktop.ini
+.DS_Store
+.idea/
+.vscode/

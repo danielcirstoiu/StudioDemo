@@ -1,0 +1,14 @@
+* text=auto
+
+# Workflow and project files: never auto-merge, always resolve deliberately.
+*.xaml        text eol=crlf merge=binary diff
+project.json  text eol=crlf merge=binary
+*.uiplibrary  text eol=crlf merge=binary
+
+# Object Repository descriptors
+.objects/**   text eol=crlf merge=binary
+
+# Genuinely binary
+*.nupkg       binary
+*.xlsx        binary
+*.png         binary
