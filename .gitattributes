@@ -1,14 +1,18 @@
 * text=auto
 
-# Workflow and project files: never auto-merge, always resolve deliberately.
+# Genuinely binary
+*.nupkg       binary
+*.xlsx        binary
+*.png         binary
+
+# Workflow and project files: unmergeable, but keep textual diffs
 *.xaml        text eol=crlf merge=binary diff
-project.json  text eol=crlf merge=binary
+project.json  text eol=crlf merge=binary diff
+*.uiproj      text eol=crlf merge=binary diff
 *.uiplibrary  text eol=crlf merge=binary
 
 # Object Repository descriptors
 .objects/**   text eol=crlf merge=binary
 
-# Genuinely binary
-*.nupkg       binary
-*.xlsx        binary
-*.png         binary
+# Studio autosave
+~*.xaml       -diff
