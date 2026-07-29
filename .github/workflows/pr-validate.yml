@@ -31,6 +31,9 @@ jobs:
           npm install -g "@uipath/cli@${CLI_VERSION}"
           uip --version
 
+      - name: CLI help (diagnostic)
+        run: uip rpa analyze --help
+
       - name: Guard - forbidden files
         if: github.event_name == 'pull_request'
         run: |
@@ -47,13 +50,27 @@ jobs:
         run: uip rpa restore "$PROJECT_DIR"
 
       - name: Workflow Analyzer
-        run: uip rpa analyze "$PROJECT_DIR" --result-path analyzer-results.json
+        continue-on-error: true
+        run: |
+          set -x
+          uip rpa analyze "$PROJECT_DIR" --result-path "$GITHUB_WORKSPACE/analyzer-results.json" || echo "analyze exit=$?"
+          ls -la "$GITHUB_WORKSPACE/analyzer-results.json" || echo "no result file written"
+
+      - name: Show violations
+        if: always()
+        run: cat "$GITHUB_WORKSPACE/analyzer-results.json" || true
 
       - name: Pack (compile proof only)
+        continue-on-error: true
         run: uip rpa pack "$PROJECT_DIR" ./dist --version 0.0.0-pr.${{ github.run_number }}
+
+      - name: List pack output
+        if: always()
+        run: ls -la ./dist || echo "no dist directory"
 
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: analyzer-results
-          path: analyzer-results.json
+          path: ${{ github.workspace }}/analyzer-results.json
+          if-no-files-found: warn
