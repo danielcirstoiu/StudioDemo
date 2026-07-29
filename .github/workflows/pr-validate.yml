@@ -43,12 +43,15 @@ jobs:
             exit 1
           fi
 
+      - name: Clean local cache
+        run: rm -rf "$GITHUB_WORKSPACE/$PROJECT_DIR/.local"
+
       - name: Restore dependencies
-        run: uip rpa restore "$PROJECT_DIR"
+        run: uip rpa restore "$GITHUB_WORKSPACE/$PROJECT_DIR"
 
       - name: Workflow Analyzer
         run: |
-          uip rpa analyze "$PROJECT_DIR" \
+          uip rpa analyze "$GITHUB_WORKSPACE/$PROJECT_DIR" \
             --detailed-log-path "$GITHUB_WORKSPACE/analyzer-results.json"
 
       - name: Show analyzer output
@@ -57,7 +60,7 @@ jobs:
 
       - name: Pack (compile proof only)
         run: |
-          uip rpa pack "$PROJECT_DIR" "$GITHUB_WORKSPACE/dist" \
+          uip rpa pack "$GITHUB_WORKSPACE/$PROJECT_DIR" "$GITHUB_WORKSPACE/dist" \
             --package-version "0.0.0-pr.${{ github.run_number }}"
 
       - name: List pack output
