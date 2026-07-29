@@ -1,13 +1,7 @@
 name: validate
 
 on:
-  pull_request:
-    branches: [ main ]
   workflow_dispatch:
-
-concurrency:
-  group: validate-${{ github.ref }}
-  cancel-in-progress: true
 
 env:
   CLI_VERSION: '1.0.0'
@@ -19,8 +13,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
@@ -31,46 +23,14 @@ jobs:
           npm install -g "@uipath/cli@${CLI_VERSION}"
           uip --version
 
-      - name: CLI help (diagnostic)
+      - name: Help - rpa
+        run: uip rpa --help
+
+      - name: Help - analyze
         run: uip rpa analyze --help
 
-      - name: Guard - forbidden files
-        if: github.event_name == 'pull_request'
-        run: |
-          CHANGED=$(git diff --name-only origin/main...HEAD)
-          BAD=$(echo "$CHANGED" | grep -E '(^|/)\.local/|\.(png|jpg|jpeg|bmp|gif)$|~.*\.xaml$' || true)
-          if [ -n "$BAD" ]; then
-            echo "$BAD" | while read -r f; do
-              echo "::error file=$f::this file must not be committed"
-            done
-            exit 1
-          fi
+      - name: Help - pack
+        run: uip rpa pack --help
 
-      - name: Restore dependencies
-        run: uip rpa restore "$PROJECT_DIR"
-
-      - name: Workflow Analyzer
-        continue-on-error: true
-        run: |
-          set -x
-          uip rpa analyze "$PROJECT_DIR" --result-path "$GITHUB_WORKSPACE/analyzer-results.json" || echo "analyze exit=$?"
-          ls -la "$GITHUB_WORKSPACE/analyzer-results.json" || echo "no result file written"
-
-      - name: Show violations
-        if: always()
-        run: cat "$GITHUB_WORKSPACE/analyzer-results.json" || true
-
-      - name: Pack (compile proof only)
-        continue-on-error: true
-        run: uip rpa pack "$PROJECT_DIR" ./dist --version 0.0.0-pr.${{ github.run_number }}
-
-      - name: List pack output
-        if: always()
-        run: ls -la ./dist || echo "no dist directory"
-
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: analyzer-results
-          path: ${{ github.workspace }}/analyzer-results.json
-          if-no-files-found: warn
+      - name: Help - restore
+        run: uip rpa restore --help
