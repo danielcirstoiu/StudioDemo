@@ -1,7 +1,13 @@
 name: validate
 
 on:
+  pull_request:
+    branches: [ main ]
   workflow_dispatch:
+
+concurrency:
+  group: validate-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   CLI_VERSION: '1.0.0'
@@ -13,24 +19,56 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Install UiPath CLI
         run: |
           npm install -g "@uipath/cli@${CLI_VERSION}"
           uip --version
 
-      - name: Help - rpa
-        run: uip rpa --help
+      - name: Guard - forbidden files
+        if: github.event_name == 'pull_request'
+        run: |
+          CHANGED=$(git diff --name-only origin/main...HEAD)
+          BAD=$(echo "$CHANGED" | grep -E '(^|/)\.local/|\.(png|jpg|jpeg|bmp|gif)$|~.*\.xaml$' || true)
+          if [ -n "$BAD" ]; then
+            echo "$BAD" | while read -r f; do
+              echo "::error file=$f::this file must not be committed"
+            done
+            exit 1
+          fi
 
-      - name: Help - analyze
-        run: uip rpa analyze --help
+      - name: Restore dependencies
+        run: uip rpa restore "$PROJECT_DIR"
 
-      - name: Help - pack
-        run: uip rpa pack --help
+      - name: Workflow Analyzer
+        run: |
+          uip rpa analyze "$PROJECT_DIR" \
+            --detailed-log-path "$GITHUB_WORKSPACE/analyzer-results.json"
 
-      - name: Help - restore
-        run: uip rpa restore --help
+      - name: Show analyzer output
+        if: always()
+        run: cat "$GITHUB_WORKSPACE/analyzer-results.json" 2>/dev/null || echo "no detailed log written"
+
+      - name: Pack (compile proof only)
+        run: |
+          uip rpa pack "$PROJECT_DIR" "$GITHUB_WORKSPACE/dist" \
+            --package-version "0.0.0-pr.${{ github.run_number }}"
+
+      - name: List pack output
+        if: always()
+        run: ls -la "$GITHUB_WORKSPACE/dist" || echo "no dist directory"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: build-output
+          path: |
+            ${{ github.workspace }}/analyzer-results.json
+            ${{ github.workspace }}/dist/*.nupkg
+          if-no-files-found: warn
