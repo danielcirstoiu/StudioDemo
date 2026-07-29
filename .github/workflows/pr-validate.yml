@@ -1,0 +1,59 @@
+name: validate
+
+on:
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+concurrency:
+  group: validate-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CLI_VERSION: '1.0.0'
+  PROJECT_DIR: 'projects/InvoiceProcessing.Performer'
+
+jobs:
+  validate:
+    name: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install UiPath CLI
+        run: |
+          npm install -g "@uipath/cli@${CLI_VERSION}"
+          uip --version
+
+      - name: Guard - forbidden files
+        if: github.event_name == 'pull_request'
+        run: |
+          CHANGED=$(git diff --name-only origin/main...HEAD)
+          BAD=$(echo "$CHANGED" | grep -E '(^|/)\.local/|\.(png|jpg|jpeg|bmp|gif)$|~.*\.xaml$' || true)
+          if [ -n "$BAD" ]; then
+            echo "$BAD" | while read -r f; do
+              echo "::error file=$f::this file must not be committed"
+            done
+            exit 1
+          fi
+
+      - name: Restore dependencies
+        run: uip rpa restore "$PROJECT_DIR"
+
+      - name: Workflow Analyzer
+        run: uip rpa analyze "$PROJECT_DIR" --result-path analyzer-results.json
+
+      - name: Pack (compile proof only)
+        run: uip rpa pack "$PROJECT_DIR" ./dist --version 0.0.0-pr.${{ github.run_number }}
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: analyzer-results
+          path: analyzer-results.json
