@@ -1,0 +1,6 @@
+{
+  "Name": "InvoiceProcessing.Performer",
+  "ProjectType": "Process",
+  "Description": "Blank Process",
+  "MainFile": "Main.xaml"
+}
