@@ -1,6 +1,6 @@
 {
-  "name": "OrderValidation",
-  "projectId": "0ce09844-fa0c-4d14-83cc-dedf2a08f127",
+  "name": "Order Validation",
+  "projectId": "09848c8b-b47e-4cc6-ad30-926746283175",
   "description": "Blank Process",
   "main": "Main.xaml",
   "dependencies": {
@@ -16,7 +16,7 @@
     "netFrameworkLazyLoading": false,
     "isPausable": true,
     "isAttended": false,
-    "requiresUserInteraction": false,
+    "requiresUserInteraction": true,
     "supportsPersistence": false,
     "workflowSerialization": "NewtonsoftJson",
     "excludedLoggedData": [
@@ -45,7 +45,7 @@
   "entryPoints": [
     {
       "filePath": "Main.xaml",
-      "uniqueId": "cdc76d20-fa5c-425b-8ad3-c9710ff8ad28",
+      "uniqueId": "a7d265b3-2361-4933-89dc-6ca7cdb89fdb",
       "input": [],
       "output": []
     }
@@ -53,5 +53,5 @@
   "isTemplate": false,
   "templateProjectData": {},
   "publishData": {},
-  "targetFramework": "Portable"
+  "targetFramework": "Windows"
 }
