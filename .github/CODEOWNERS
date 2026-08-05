@@ -16,3 +16,7 @@
 /projects/InvoiceProcessing.Performer/Workflows/Notifications/  @DCI-WORK
 /projects/InvoiceProcessing.Performer/Tests/ERP/               @danielcirstoiu
 /projects/InvoiceProcessing.Performer/Tests/Notifications/      @DCI-WORK
+/projects/OrderValidation/project.json                    @danielcirstoiu
+/projects/OrderValidation/Main.xaml                       @danielcirstoiu
+/projects/OrderValidation/Workflows/Validation/           @danielcirstoiu
+/projects/OrderValidation/Workflows/Reporting/            @DCI-WORK
